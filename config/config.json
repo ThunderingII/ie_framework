@@ -1,0 +1,123 @@
+{
+  "active": [
+    "test1"
+  ],
+  "config": {
+    "cuda_ids": [
+      0,
+      1
+    ],
+    "base_path_model": "/User/zhanglin/code/ner",
+    "base_path_data": "/User/zhanglin/code/ner",
+    "base_path_result": "/User/zhanglin/code/ner"
+  },
+  "models": [
+    {
+      "python_module": "model.ner_model",
+      "class_name": "Ner",
+      "config_class_name": "NerModelConfig",
+      "name": "base",
+      "init_type": "config",
+      "labelling_type": "crf",
+      "num_tags": 3,
+      "mix_type": "add",
+      "em_type": "bert",
+      "freeze_embedding_bert": true,
+      "vocab_size": 20000,
+      "glove_size": 300,
+      "feature_size": 32,
+      "hidden_size": 1000,
+      "dropout": 0.2,
+      "bert_size": 768,
+      "bert_layers": 12,
+      "bert_attn_heads": 8,
+      "tf_size": 1000,
+      "tf_head_num": 1000,
+      "tf_dropout": 1000,
+      "extra_feats_type": "lstm"
+    }
+  ],
+  "dataset_list": [
+    {
+      "name": "train",
+      "path": "data/train.csv",
+      "actions": [
+        "df||remove_null",
+        "col|text|lambda x:x.lower()",
+        "filter||"
+      ]
+    }
+  ],
+  "evaluator_list": [
+    {
+      "name": "ner_f1",
+      "method_name": "ner_f1",
+      "plot_type": "visdom",
+      "visdom_config": {
+        "vip": "",
+        "env": ""
+      },
+      "extra": {}
+    }
+  ],
+  "experiment_list": [
+    {
+      "name": "test1",
+      "action_list": [
+        "train",
+        "evaluate"
+      ],
+      "experiment_config": {
+        "multi_thread": true,
+        "batch_size": 1
+      },
+      "training": {
+        "models": [
+          {
+            "model": "base",
+            "tag": "lr1e5",
+            "save_path": "",
+            "device_ids": []
+          }
+        ],
+        "train_config": {
+          "dataset_list": [
+            "base"
+          ],
+          "lr": 0.0001,
+          "epoch": 40,
+          "batch_size": 64,
+          "monitor": "ner_f1"
+        },
+        "valid_config": {
+          "valid_type": "random_split",
+          "batch_size": 1,
+          "dataset_list": [
+          ],
+          "valid_rate": 0.15,
+          "evaluators": [
+            "ner_f1"
+          ]
+        }
+      },
+      "evaluating": {
+        "models": [
+          {
+            "model": "base",
+            "tag": "lr1e5",
+            "save_path": "",
+            "device_ids": []
+          }
+        ],
+        "dataset_list": [
+          "base"
+        ],
+        "evaluator_list": [
+          {
+            "name": "ner_f1"
+          }
+        ]
+      }
+    }
+  ]
+}
